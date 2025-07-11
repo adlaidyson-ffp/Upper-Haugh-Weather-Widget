@@ -1,4 +1,37 @@
-<a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" data-label_1="Upper Haugh" data-label_2="Weather" data-mode="Current" data-days="3" data-theme="weather_one" >Upper Haugh Weather</a>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upper Haugh Weather</title>
+  <style>
+    body {
+      margin: 0;
+      background: #1e374d;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" 
+    data-label_1="Upper Haugh" 
+    data-label_2="Weather" 
+    data-mode="Current" 
+    data-days="3" 
+    data-theme="original" 
+    data-basecolor="#1e374d" 
+    data-accent="#1e374d">
+    Upper Haugh Weather
+  </a>
+  <script>
+    !function(d,s,id){
+      var js,fjs=d.getElementsByTagName(s)[0];
+      if(!d.getElementById(id)){
+        js=d.createElement(s);
+        js.id=id;
+        js.src='https://weatherwidget.io/js/widget.min.js';
+        fjs.parentNode.insertBefore(js,fjs);
+      }
+    }(document,'script','weatherwidget-io-js');
+  </script>
+</body>
+</html>
