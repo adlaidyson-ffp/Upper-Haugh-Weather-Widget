@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Reload Wrapper</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #1e374d;
+    }
+    #iframeA, #iframeB {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="iframeA" src="https://uhweather.adlaidyson.co.uk"></iframe>
+  <iframe id="iframeB" style="display:none;"></iframe>
+
+  <script>
+    let showingA = true;
+
+    setInterval(() => {
+      const current = document.getElementById(showingA ? 'iframeB' : 'iframeA');
+      current.src = "https://uhweather.adlaidyson.co.uk";
+      current.style.display = 'block';
+
+      setTimeout(() => {
+        const previous = document.getElementById(showingA ? 'iframeA' : 'iframeB');
+        previous.style.display = 'none';
+        showingA = !showingA;
+      }, 2000); // wait for new iframe to load before switching
+    }, 300000); // 5 minutes
+  </script>
+</body>
+</html>
