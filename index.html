@@ -2,24 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Upper Haugh Weather</title>
   <style>
+    /* Set the main page background to the requested dark color */
     body {
       margin: 0;
-      background: #1e374d;
+      background: #111827; /* Dark background */
+      color: #94fdf8; /* Set default text color for non-widget elements */
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       overflow: hidden;
     }
   </style>
 </head>
 <body>
+  <!-- The weather widget configuration is updated: -->
+  <!-- data-basecolor is the widget background: #111827 -->
+  <!-- data-accent is the text/icon color: #94fdf8 -->
   <a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" 
     data-label_1="Upper Haugh" 
     data-label_2="Weather" 
     data-mode="Current" 
     data-days="3" 
     data-theme="original" 
-    data-basecolor="#1e374d" 
-    data-accent="#1e374d">
+    data-basecolor="#111827" 
+    data-accent="#94fdf8">
     Upper Haugh Weather
   </a>
   <script>
