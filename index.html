@@ -1,60 +1,173 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upper Haugh Weather</title>
-    <!-- Link to Open Sans font with 700 weight from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
-    <style>
-        /* Set the main page background to the requested dark color */
-        body {
-            margin: 0;
-            background: #111827; /* Dark background */
-            color: #94fdf8; /* Set default text color */
-            /* Apply the requested font and bold weight to the entire body */
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 700; /* Bold weight */
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upper Haugh — Signage Weather Widget</title>
+  <style>
+    :root{--bg:transparent;--text:#d7f6f6;--muted:#9fbec4;--accent:#94fdf8}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;}
+    body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex;align-items:stretch}
+    .widget{box-sizing:border-box;padding:12px 14px;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;height:100%;width:100%}
 
-        /* Target the widget container to ensure the style applies, using !important for maximum priority */
-        /* We are also explicitly setting the color here, just in case data-accent is not fully sufficient */
-        .weatherwidget-io {
-            font-family: 'Open Sans', sans-serif !important;
-            font-weight: 700 !important;
-            color: #94fdf8 !important; /* Explicitly set the text color */
-        }
-    </style>
+    .location{font-weight:700;font-size:20px;color:var(--accent);}
+    .divider{height:1px;background:rgba(255,255,255,0.08);margin:8px 0 12px 0}
+    .temp{font-size:44px;font-weight:800;line-height:1;color:var(--text);}
+    .small{font-size:14px;color:var(--muted)}
+
+    .hourly{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+    .hour-row{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:rgba(0,0,0,0.18);border-radius:6px}
+    .hour-left{display:flex;gap:8px;align-items:center}
+    .hour-time{min-width:44px;font-weight:600}
+    .hour-temp{font-weight:700}
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .meta{background:rgba(0,0,0,0.18);padding:8px;border-radius:8px;display:flex;flex-direction:column;gap:6px}
+    .meta .label{font-size:12px;color:var(--muted)}
+    .meta .value{font-size:18px;font-weight:700}
+
+    .aqi-good{color:#6ee7b7}
+    .aqi-fair{color:#fbbf24}
+    .aqi-moderate{color:#f97316}
+    .aqi-poor{color:#ef4444}
+    .aqi-very{color:#9f1239}
+
+    /* make everything scale nicely if area is narrow/tall */
+    @media (min-width:240px) and (max-width:420px){
+      .temp{font-size:34px}
+      .location{font-size:18px}
+    }
+  </style>
 </head>
 <body>
-    <!-- The weather widget configuration -->
-    <!-- data-basecolor is the widget background: #111827 -->
-    <!-- data-accent is the text/icon color: #94fdf8 -->
-    <a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" 
-        data-label_1="Upper Haugh" 
-        data-label_2="Weather" 
-        data-mode="Current" 
-        data-days="3" 
-        data-theme="original" 
-        data-basecolor="#111827" 
-        data-accent="#94fdf8">
-        Upper Haugh Weather
-    </a>
-    <script>
-        !function(d,s,id){
-            var js,fjs=d.getElementsByTagName(s)[0];
-            if(!d.getElementById(id)){
-                js=d.createElement(s);
-                js.id=id;
-                js.src='https://weatherwidget.io/js/widget.min.js';
-                fjs.parentNode.insertBefore(js,fjs);
-            }
-        }(document,'script','weatherwidget-io-js');
-    </script>
+  <div class="widget" id="widget">
+    <div class="location" id="loc">Upper Haugh</div>
+    <div class="divider"></div>
+    <div class="temp" id="temp">--°C</div>
+
+    <div class="hourly" id="hourly">
+      <!-- hourly rows inserted here -->
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta">
+        <div class="label">Humidity</div>
+        <div class="value" id="humidity">--%</div>
+      </div>
+      <div class="meta">
+        <div class="label">Wind</div>
+        <div class="value" id="wind">-- mph</div>
+      </div>
+      <div class="meta">
+        <div class="label">Air Quality</div>
+        <div class="value" id="aqi">--</div>
+      </div>
+      <div class="meta">
+        <div class="label">UV Index</div>
+        <div class="value" id="uvi">--</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const API = 'https://uhwappapi.adlaidyson.co.uk/weather';
+    const UPDATE_MS = 120000; // 2 minutes
+    const HOURS_TO_SHOW = 6; // hourly items to display
+
+    // Utility conversions & formatting
+    const mpsToMph = (mps) => Math.round(mps * 2.23694);
+    const round = (v) => Math.round(v);
+    const hourLabel = (unixSec) => {
+      const d = new Date(unixSec * 1000);
+      return d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}).replace(':00','');
+    };
+
+    // AQI mapping (OpenWeatherMap 1..5)
+    function aqiLabelStyle(aqi){
+      const n = Number(aqi)||0;
+      if(n<=1) return {text:'Good', cls:'aqi-good', advice:'Low health risk.'};
+      if(n===2) return {text:'Fair', cls:'aqi-fair', advice:'Acceptable.'};
+      if(n===3) return {text:'Moderate', cls:'aqi-moderate', advice:'Some people may be sensitive.'};
+      if(n===4) return {text:'Poor', cls:'aqi-poor', advice:'Consider reducing prolonged outdoor exertion.'};
+      return {text:'Very poor', cls:'aqi-very', advice:'Avoid prolonged outdoor exertion.'};
+    }
+
+    // Update DOM with data object
+    function updateDOM(data){
+      try{
+        const cur = data.weather.current;
+        const air = data.airPollution?.list?.[0];
+        document.getElementById('loc').textContent = data.place_name || 'Upper Haugh';
+        document.getElementById('temp').textContent = (round(cur.temp)) + '°C';
+        document.getElementById('humidity').textContent = (round(cur.humidity)) + '%';
+        document.getElementById('wind').textContent = mpsToMph(cur.wind_speed) + ' mph';
+        document.getElementById('uvi').textContent = round(cur.uvi || 0);
+
+        // AQI
+        let aqiText = '--';
+        if(air && air.main && air.main.aqi !== undefined){
+          const m = aqiLabelStyle(air.main.aqi);
+          const aqiEl = document.getElementById('aqi');
+          aqiEl.textContent = m.text + ' (' + air.main.aqi + ')';
+          aqiEl.className = 'value ' + m.cls;
+          aqiEl.title = m.advice;
+        } else {
+          document.getElementById('aqi').textContent = '--';
+        }
+
+        // Hourly
+        const hourly = data.weather.hourly || [];
+        const list = hourly.slice(0, HOURS_TO_SHOW);
+        const hourlyContainer = document.getElementById('hourly');
+        // Build rows silently: create new fragment then swap
+        const frag = document.createDocumentFragment();
+        list.forEach(h => {
+          const row = document.createElement('div'); row.className='hour-row';
+          const left = document.createElement('div'); left.className='hour-left';
+          const time = document.createElement('div'); time.className='hour-time'; time.textContent = hourLabel(h.dt);
+          const icon = document.createElement('img'); icon.src = 'https://openweathermap.org/img/wn/' + (h.weather?.[0]?.icon || '04d') + '@2x.png';
+          icon.alt = h.weather?.[0]?.description || '';
+          icon.style.width = '28px'; icon.style.height='28px'; icon.style.imageRendering='pixelated';
+          left.appendChild(time); left.appendChild(icon);
+          const temp = document.createElement('div'); temp.className='hour-temp'; temp.textContent = round(h.temp) + '°';
+          row.appendChild(left); row.appendChild(temp);
+          frag.appendChild(row);
+        });
+        // Replace contents
+        hourlyContainer.innerHTML = '';
+        hourlyContainer.appendChild(frag);
+
+      } catch (e){
+        console.error('updateDOM error', e);
+      }
+    }
+
+    // Fetch data from backend and update silently
+    async function fetchAndUpdate(){
+      try{
+        const resp = await fetch(API, {cache: 'no-store'});
+        if(!resp.ok) throw new Error('network');
+        const json = await resp.json();
+        // Optionally, inject a place_name if backend doesn't include it
+        if(!json.place_name && json.weather && json.weather.lat && json.weather.lon){
+          json.place_name = 'Upper Haugh';
+        }
+        updateDOM(json);
+      } catch (err){
+        // on error do not show loader; leave previous data intact
+        console.warn('Fetch failed', err);
+      }
+    }
+
+    // Initial load
+    fetchAndUpdate();
+    // Background interval
+    setInterval(fetchAndUpdate, UPDATE_MS);
+
+    // Visibility: if page hidden, keep fetching but less frequently to reduce load
+    document.addEventListener('visibilitychange', () => {
+      // keep behavior simple for signage: continue updating every 2 minutes
+    });
+  </script>
 </body>
 </html>
