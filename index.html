@@ -1,48 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upper Haugh Weather</title>
-  <style>
-    /* Set the main page background to the requested dark color */
-    body {
-      margin: 0;
-      background: #111827; /* Dark background */
-      color: #94fdf8; /* Set default text color for non-widget elements */
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upper Haugh Weather</title>
+    <!-- Link to Open Sans font with 700 weight from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Set the main page background to the requested dark color */
+        body {
+            margin: 0;
+            background: #111827; /* Dark background */
+            color: #94fdf8; /* Set default text color */
+            /* Apply the requested font and bold weight to the entire body */
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 700; /* Bold weight */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Target the widget container to ensure the style applies, using !important for maximum priority */
+        /* We are also explicitly setting the color here, just in case data-accent is not fully sufficient */
+        .weatherwidget-io {
+            font-family: 'Open Sans', sans-serif !important;
+            font-weight: 700 !important;
+            color: #94fdf8 !important; /* Explicitly set the text color */
+        }
+    </style>
 </head>
 <body>
-  <!-- The weather widget configuration is updated: -->
-  <!-- data-basecolor is the widget background: #111827 -->
-  <!-- data-accent is the text/icon color: #94fdf8 -->
-  <a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" 
-    data-label_1="Upper Haugh" 
-    data-label_2="Weather" 
-    data-mode="Current" 
-    data-days="3" 
-    data-theme="original" 
-    data-basecolor="#111827" 
-    data-accent="#94fdf8">
-    Upper Haugh Weather
-  </a>
-  <script>
-    !function(d,s,id){
-      var js,fjs=d.getElementsByTagName(s)[0];
-      if(!d.getElementById(id)){
-        js=d.createElement(s);
-        js.id=id;
-        js.src='https://weatherwidget.io/js/widget.min.js';
-        fjs.parentNode.insertBefore(js,fjs);
-      }
-    }(document,'script','weatherwidget-io-js');
-  </script>
+    <!-- The weather widget configuration -->
+    <!-- data-basecolor is the widget background: #111827 -->
+    <!-- data-accent is the text/icon color: #94fdf8 -->
+    <a class="weatherwidget-io" href="https://forecast7.com/en/53d47n1d36/upper-haugh/" 
+        data-label_1="Upper Haugh" 
+        data-label_2="Weather" 
+        data-mode="Current" 
+        data-days="3" 
+        data-theme="original" 
+        data-basecolor="#111827" 
+        data-accent="#94fdf8">
+        Upper Haugh Weather
+    </a>
+    <script>
+        !function(d,s,id){
+            var js,fjs=d.getElementsByTagName(s)[0];
+            if(!d.getElementById(id)){
+                js=d.createElement(s);
+                js.id=id;
+                js.src='https://weatherwidget.io/js/widget.min.js';
+                fjs.parentNode.insertBefore(js,fjs);
+            }
+        }(document,'script','weatherwidget-io-js');
+    </script>
 </body>
 </html>
